@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка и изменение размера изображения</title>
+</head>
+
+<body>
+    <h2>Загрузите изображение</h2>
+
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".jpg,.jpeg,.png,.tiff" required>
+        <button type="submit">Загрузить</button>
+    </form>
+
+    {% if image_url %}
+    <h3>Предпросмотр загруженного изображения:</h3>
+    <img src="{{ image_url }}" alt="Preview">
+
+    <h2>Изменение размера изображения</h2>
+    <form action="/resize/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="scale">Коэффицент масштабирования</label>
+        <input type="number" name="scale" id="scale" min="0.1" step="0.1" max="5.0" value="1.0">
+
+        <label for="width">Или укажите ширину:</label>
+        <input type="number" id="width" name="width" value="0">
+
+        <label for="height">Или укажите высоту:</label>
+        <input type="number" id="height" name="height" value="0">
+
+        <label for="interpolation">Метод интерполяции:</label>
+        <select id="interpolation" name="interpolation">
+            <option value="nearest">Ближайший сосед</option>
+            <option value="bilinear">Билинейная</option>
+            <option value="bicubic">Бикубическая</option>
+        </select>
+
+        <button type="submit">Изменить размер</button>
+    </form>
+
+    <h2>Вырезка фрагмента изображения</h2>
+    <form action="/crop/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="x">X координата</label>
+        <input type="number" name="x" id="x" value="0">
+
+        <label for="y">Y координата</label>
+        <input type="number" name="y" id="y" value="0">
+
+        <label for="width">Ширина</label>
+        <input type="number" name="width" id="width" value="0">
+
+        <label for="height">Высота</label>
+        <input type="number" name="height" id="height" value="0">
+
+        <button type="submit">Вырезать фрагмент</button>
+    </form>
+
+    <h2>Отзеркаливание изображения</h2>
+    <form action="/mirror/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="axis">Ось отзеркаливания</label>
+        <select id="axis" name="axis">
+            <option value="0">Ось вертикали</option>
+            <option value="1">Ось горизонтали</option>
+            <option value="-1">Отражение по обеим осям</option>
+        </select>
+
+        <button type="submit">Отзеркалить</button>
+    </form>
+
+    <h2>Поворот изображения</h2>
+    <form action="/rotate/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="x">X координата</label>
+        <input type="number" name="x" id="x" value="0">
+
+        <label for="y">Y координата</label>
+        <input type="number" name="y" id="y" value="0">
+
+        <label for="angle">Угол поворота</label>
+        <input type="number" name="angle" id="angle" value="0">
+
+        <label for="scale">Scale</label>
+        <input type="number" name="scale" id="scale" value="1.0">
+
+        <button type="submit">Повернуть</button>
+    </form>
+    <h2>Изменение яркости изображения</h2>
+    <form action="/brightness/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="brightness">Яркость</label>
+        <input type="number" name="brightness" id="brightness" value="0">
+
+        <label for="contrast">Контраст</label>
+        <input type="number" name="contrast" id="contrast" value="0">
+
+        <button type="submit">Смена яркости</button>
+    </form>
+    <h2>Изменение цветового баланса</h2>
+    <form action="/color_balance/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="red_factor">Красный канал</label>
+        <input type="number" name="red_factor" id="red_factor" min="1.0" step="0.1" max="10.0" value="1.0">
+
+        <label for="green_factor">Зеленый канал</label>
+        <input type="number" name="green_factor" id="green_factor" min="1.0" step="0.1" max="10.0" value="1.0">
+
+        <label for="blue_factor">Синий канал</label>
+        <input type="number" name="blue_factor" id="blue_factor" min="1.0" step="0.1" max="10.0" value="1.0">
+
+        <button type="submit">Смена канала</button>
+    </form>
+    <h2>Гауссов шум</h2>
+    <form action="/gaussian_noise/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="mean">Mean</label>
+        <input type="number" name="mean" id="mean" value="1.0">
+
+        <label for="sigma">Sigma</label>
+        <input type="number" name="sigma" id="sigma" value="1.0">
+
+        <button type="submit">Добавить гауссов шум</button>
+    </form>
+    <h2>Соль и перец</h2>
+    <form action="/salt_pepper/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="salt_prob">Соль</label>
+        <input type="number" name="salt_prob" id="salt_prob" min="0.0" step="0.1" max="1.0" value="0.5">
+
+        <label for="pepper_prob">Перец</label>
+        <input type="number" name="pepper_prob" id="pepper_prob" min="0.0" step="0.1" max="1.0" value="0.5">
+
+        <button type="submit">Добавить соли и перца</button>
+    </form>
+    <h2>Размытие изображения</h2>
+    <form action="/blur/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <select id="blur_type" name="blur_type">
+            <option value="average">Среднее размытие</option>
+            <option value="gaussian">Гауссово размытие</option>
+            <option value="median">Медианное размытие</option>
+        </select>
+
+        <label for="ksize">KSize</label>
+        <input type="number" name="ksize" id="ksize" min="3" step="2" value="3">
+
+        <button type="submit">Размыть</button>
+    </form>
+    {% if edited_image_url %}
+    <h3>Измененное изображение:</h3>
+    <img src="{{ edited_image_url }}" alt="Edited preview">
+    <a href="{{ edited_image_url }}" download>
+        <button>Скачать обработанный файл</button>
+    </a>
+    {% endif %}
+    {% endif %}
+
+    {% if message %}
+    <h1 style="color: red;">{{ message }}</h1>
+    {% endif %}
+
+</body>
+
+</html>
