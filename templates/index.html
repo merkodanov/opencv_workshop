@@ -217,6 +217,46 @@
 
         <button type="submit">Найти</button>
     </form>
+    <h2>Бинаризация пороговая</h2>
+    <form action="/binarize_threshold/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="thresh">Нижняя граница</label>
+        <input type="number" id="thresh"  name="thresh" min="0" step="1" max="255" value="127">
+        <label for="maxval">Верхняя граница</label>
+        <input type="number" id="maxval"  name="maxval" min="0" step="1" max="255" value="255">
+        <button type="submit">Бинаризировать</button>
+    </form>
+    <h2>Бинаризация адаптивная</h2>
+    <form action="/binarize_adaptive/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="block_size">Block_size</label>
+        <input type="number" id="block_size"  name="block_size" min="3" step="2" value="1">
+        <label for="c">Коэффицентр</label>
+        <input type="number" id="c"  name="c" min="1" step="1" value="2">
+        <button type="submit">Бинаризировать</button>
+    </form>
+    <h2>Бинаризация собель</h2>
+    <form action="/binarize_sobel/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="ksize">ksize</label>
+        <input type="number" id="ksize"  name="ksize" min="3" step="2" value="3">
+
+        <button type="submit">Бинаризировать</button>
+    </form>
+    <h2>Бинаризация canny</h2>
+    <form action="/binarize_canny/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <label for="threshold1">Нижняя граница</label>
+        <input type="number" id="threshold1"  name="threshold1" min="0" max="255" value="100">
+
+        <label for="threshold1">Верхняя граница</label>
+        <input type="number" id="threshold2" name="threshold2" min="0" max="255" value="200">
+        <button type="submit">Бинаризировать</button>
+    </form>
     {% if edited_image_url %}
     <h3>Измененное изображение:</h3>
     <img src="{{ edited_image_url }}" alt="Edited preview">

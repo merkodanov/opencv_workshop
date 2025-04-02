@@ -14,6 +14,7 @@ from utils import (
     adjust_brightness_contrast,
     adjust_color_balance,
     apply_blur,
+    binarize_image,
     find_object_by_color,
     generate_preview,
     get_edited_img_path,
@@ -204,6 +205,7 @@ async def blur(
         ksize=ksize,
     )
 
+
 @opencv.post("/find_by_rgb/", response_class=HTMLResponse)
 async def find_by_rgb(
     request: Request,
@@ -214,18 +216,19 @@ async def find_by_rgb(
     R_H: int = Form(),
     G_H: int = Form(),
     B_H: int = Form(),
-    method: str = Form()
+    method: str = Form(),
 ):
     return await process_image(
         request,
         image_path,
         find_object_by_color,
-        color_lower_bound=(R_L,G_L,B_L),
-        color_upper_bound=(R_H,G_H,B_H),
+        color_lower_bound=(R_L, G_L, B_L),
+        color_upper_bound=(R_H, G_H, B_H),
         color_space="RGB",
         method=method,
     )
-    
+
+
 @opencv.post("/find_by_hsv/", response_class=HTMLResponse)
 async def find_by_hsv(
     request: Request,
@@ -236,17 +239,84 @@ async def find_by_hsv(
     H_H: int = Form(),
     S_H: int = Form(),
     V_H: int = Form(),
-    method: str = Form()
+    method: str = Form(),
 ):
     return await process_image(
         request,
         image_path,
         find_object_by_color,
-        color_lower_bound=(H_L,S_L,V_L),
-        color_upper_bound=(H_H,S_H,V_H),
+        color_lower_bound=(H_L, S_L, V_L),
+        color_upper_bound=(H_H, S_H, V_H),
         color_space="HSV",
         method=method,
-    )    
+    )
+
+
+@opencv.post("/binarize_threshold/", response_class=HTMLResponse)
+async def binarize_threshold(
+    request: Request,
+    image_path: str = Form(...),
+    thresh: int = Form(),
+    maxval: int = Form(),
+):
+    return await process_image(
+        request,
+        image_path,
+        binarize_image,
+        method="threshold",
+        thresh=thresh,
+        maxval=maxval,
+    )
+
+
+@opencv.post("/binarize_adaptive/", response_class=HTMLResponse)
+async def binarize_adaptive(
+    request: Request,
+    image_path: str = Form(...),
+    c: int = Form(),
+    block_size: int = Form(),
+):
+    return await process_image(
+        request,
+        image_path,
+        binarize_image,
+        method="adaptive",
+        c=c,
+        block_size=block_size,
+    )
+
+
+@opencv.post("/binarize_sobel/", response_class=HTMLResponse)
+async def binarize_sobel(
+    request: Request,
+    image_path: str = Form(...),
+    ksize: int = Form(),
+):
+    return await process_image(
+        request,
+        image_path,
+        binarize_image,
+        method="sobel",
+        ksize=ksize,
+    )
+
+
+@opencv.post("/binarize_canny/", response_class=HTMLResponse)
+async def binarize_canny(
+    request: Request,
+    image_path: str = Form(...),
+    threshold1: int = Form(),
+    threshold2: int = Form(),
+):
+    return await process_image(
+        request,
+        image_path,
+        binarize_image,
+        method="canny",
+        threshold1=threshold1,
+        threshold2=threshold2,
+    )
+
 
 @opencv.get("/download/{image_url}")
 async def download_file(image_url: str):

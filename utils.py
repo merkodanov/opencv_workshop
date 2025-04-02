@@ -148,37 +148,97 @@ def apply_blur(image, blur_type, ksize=3):
 
     return blurred_image
 
-def find_object_by_color(image, color_lower_bound: tuple, color_upper_bound: tuple, color_space: str, method: str):
+
+def find_object_by_color(
+    image,
+    color_lower_bound: tuple,
+    color_upper_bound: tuple,
+    color_space: str,
+    method: str,
+):
     image = np.asarray(image)
-    
+
     if color_space == "HSV":
         converted = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     elif color_space == "RGB":
-        converted = image  
-        color_lower_bound = (color_lower_bound[2], color_lower_bound[1], color_lower_bound[0])
-        color_upper_bound = (color_upper_bound[2], color_upper_bound[1], color_upper_bound[0])
+        converted = image
+        color_lower_bound = (
+            color_lower_bound[2],
+            color_lower_bound[1],
+            color_lower_bound[0],
+        )
+        color_upper_bound = (
+            color_upper_bound[2],
+            color_upper_bound[1],
+            color_upper_bound[0],
+        )
     else:
         raise ValueError("Не поддерживаемый цвет. Используйте 'RGB' или 'HSV'.")
-    
-    
+
     mask = cv2.inRange(converted, color_lower_bound, color_upper_bound)
-    
+
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
+
     if not contours:
-        return image  
-    
-    
+        return image
+
     largest_contour = max(contours, key=cv2.contourArea)
     x, y, w, h = cv2.boundingRect(largest_contour)
-    
+
     if method == "box":
         return cv2.rectangle(image.copy(), (x, y), (x + w, y + h), (0, 255, 0), 2)
     elif method == "crop":
-        return image[y:y + h, x:x + w]
+        return image[y : y + h, x : x + w]
     else:
         raise ValueError("Не поддерживаемый метод. Используйте 'box' или 'crop'.")
-    
+
+
+def binarize_image(image, method: str, **kwargs):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image
+    if method == "threshold":
+        thresh_val = kwargs.get("thresh", 127)
+        max_val = kwargs.get("maxval", 255)
+        if thresh_val < 0 or max_val < 0:
+            raise ValueError("Границы не могут быть меньше нуля")
+        if thresh_val > max_val:
+            raise ValueError("Нижняя граница больше верхней границы")
+        _, binary = cv2.threshold(image, thresh_val, max_val, cv2.THRESH_BINARY)
+
+    elif method == "adaptive":
+        block_size = kwargs.get("block_size", 11)
+        if block_size % 2 == 0:
+            raise ValueError("block size - нечетное число")
+        c = kwargs.get("c", 2)
+        if block_size < 0 or c < 0:
+            raise ValueError("block_size и c должны быть больше 0")
+        binary = cv2.adaptiveThreshold(
+            image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_size, c
+        )
+
+    elif method == "sobel":
+        ksize = kwargs.get("ksize", 3)
+        if ksize <= 0:
+            raise ValueError("Ksize должен быть больше 0")
+        if ksize % 2 == 0:
+            raise ValueError("KSize нечетное число")
+        grad_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=ksize)
+        grad_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=ksize)
+        binary = cv2.convertScaleAbs(cv2.sqrt(grad_x**2 + grad_y**2))
+
+    elif method == "canny":
+        threshold1 = kwargs.get("threshold1", 100)
+        threshold2 = kwargs.get("threshold2", 200)
+        if threshold1 < 0 or threshold2 < 0:
+            raise ValueError("threshold должен быть больше 0")
+        if threshold2 < threshold1:
+            raise ValueError("Нижняя граница должна быть меньше верхней границы")
+        binary = cv2.Canny(image, threshold1, threshold2)
+
+    else:
+        raise ValueError("Неизвестный метод бинаризации")
+
+    return binary
+
 
 def get_img(image_path):
     img = cv2.imread(image_path)
@@ -189,13 +249,15 @@ def get_str_img_path(image_path):
     image_path = str(image_path)
     return image_path.split("\\")[-1]
 
+
 def get_file_path(filename):
     file_path = os.path.join(UPLOAD_FOLDER, f"edited_{filename}")
-    
+
     if not os.path.exists(file_path):
         raise ValueError("Файла не существует!")
-    
+
     return file_path
+
 
 def get_edited_img_path(image_path):
     return "edited_" + image_path
