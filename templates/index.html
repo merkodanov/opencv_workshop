@@ -159,6 +159,64 @@
 
         <button type="submit">Размыть</button>
     </form>
+    <h2>Поиск объекта RGB</h2>
+    <form action="/find_by_rgb/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <select id="method" name="method">
+            <option value="box">Выделять коробкой</option>
+            <option value="crop">Вырезать</option>
+        </select>
+
+        <label for="R_L">R нижняя граница</label>
+        <input type="number" name="R_L" id="R_L" min="0" step="1" max="255" value="0">
+
+        <label for="G_L">G нижняя граница</label>
+        <input type="number" name="G_L" id="G_L" min="0" step="1" max="255" value="0">
+
+        <label for="B_L">B нижняя граница</label>
+        <input type="number" name="B_L" id="B_L" min="0" step="1" max="255" value="0">
+
+        <label for="R_H">R верхняя граница</label>
+        <input type="number" name="R_H" id="R_H" min="0" step="1" max="255" value="0">
+
+        <label for="G_H">G верхняя граница</label>
+        <input type="number" name="G_H" id="G_H" min="0" step="1" max="255" value="0">
+
+        <label for="B_H">B верхняя граница</label>
+        <input type="number" name="B_H" id="B_H" min="0" step="1" max="255" value="0">
+
+        <button type="submit">Найти</button>
+    </form>
+    <h2>Поиск объекта HSV</h2>
+    <form action="/find_by_hsv/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="image_path" value="{{ image_url }}">
+
+        <select id="method" name="method">
+            <option value="box">Выделять коробкой</option>
+            <option value="crop">Вырезать</option>
+        </select>
+
+        <label for="H_L">H нижняя граница</label>
+        <input type="number" name="H_L" id="H_L" min="0" step="1" max="255" value="0">
+
+        <label for="S_L">S нижняя граница</label>
+        <input type="number" name="S_L" id="S_L" min="0" step="1" max="255" value="0">
+
+        <label for="V_L">V нижняя граница</label>
+        <input type="number" name="V_L" id="V_L" min="0" step="1" max="255" value="0">
+
+        <label for="H_H">H верхняя граница</label>
+        <input type="number" name="H_H" id="H_H" min="0" step="1" max="255" value="0">
+
+        <label for="S_H">S верхняя граница</label>
+        <input type="number" name="S_H" id="S_H" min="0" step="1" max="255" value="0">
+
+        <label for="V_H">V верхняя граница</label>
+        <input type="number" name="V_H" id="V_H" min="0" step="1" max="255" value="0">
+
+        <button type="submit">Найти</button>
+    </form>
     {% if edited_image_url %}
     <h3>Измененное изображение:</h3>
     <img src="{{ edited_image_url }}" alt="Edited preview">

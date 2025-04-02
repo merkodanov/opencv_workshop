@@ -148,6 +148,37 @@ def apply_blur(image, blur_type, ksize=3):
 
     return blurred_image
 
+def find_object_by_color(image, color_lower_bound: tuple, color_upper_bound: tuple, color_space: str, method: str):
+    image = np.asarray(image)
+    
+    if color_space == "HSV":
+        converted = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    elif color_space == "RGB":
+        converted = image  
+        color_lower_bound = (color_lower_bound[2], color_lower_bound[1], color_lower_bound[0])
+        color_upper_bound = (color_upper_bound[2], color_upper_bound[1], color_upper_bound[0])
+    else:
+        raise ValueError("Не поддерживаемый цвет. Используйте 'RGB' или 'HSV'.")
+    
+    
+    mask = cv2.inRange(converted, color_lower_bound, color_upper_bound)
+    
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    if not contours:
+        return image  
+    
+    
+    largest_contour = max(contours, key=cv2.contourArea)
+    x, y, w, h = cv2.boundingRect(largest_contour)
+    
+    if method == "box":
+        return cv2.rectangle(image.copy(), (x, y), (x + w, y + h), (0, 255, 0), 2)
+    elif method == "crop":
+        return image[y:y + h, x:x + w]
+    else:
+        raise ValueError("Не поддерживаемый метод. Используйте 'box' или 'crop'.")
+    
 
 def get_img(image_path):
     img = cv2.imread(image_path)

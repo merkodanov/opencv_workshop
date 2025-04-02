@@ -1,5 +1,6 @@
 import os
 import shutil
+from turtle import color
 import uuid
 from fastapi import APIRouter, File, Form, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
@@ -13,6 +14,7 @@ from utils import (
     adjust_brightness_contrast,
     adjust_color_balance,
     apply_blur,
+    find_object_by_color,
     generate_preview,
     get_edited_img_path,
     get_str_img_path,
@@ -202,6 +204,49 @@ async def blur(
         ksize=ksize,
     )
 
+@opencv.post("/find_by_rgb/", response_class=HTMLResponse)
+async def find_by_rgb(
+    request: Request,
+    image_path: str = Form(...),
+    R_L: int = Form(),
+    G_L: int = Form(),
+    B_L: int = Form(),
+    R_H: int = Form(),
+    G_H: int = Form(),
+    B_H: int = Form(),
+    method: str = Form()
+):
+    return await process_image(
+        request,
+        image_path,
+        find_object_by_color,
+        color_lower_bound=(R_L,G_L,B_L),
+        color_upper_bound=(R_H,G_H,B_H),
+        color_space="RGB",
+        method=method,
+    )
+    
+@opencv.post("/find_by_hsv/", response_class=HTMLResponse)
+async def find_by_hsv(
+    request: Request,
+    image_path: str = Form(...),
+    H_L: int = Form(),
+    S_L: int = Form(),
+    V_L: int = Form(),
+    H_H: int = Form(),
+    S_H: int = Form(),
+    V_H: int = Form(),
+    method: str = Form()
+):
+    return await process_image(
+        request,
+        image_path,
+        find_object_by_color,
+        color_lower_bound=(H_L,S_L,V_L),
+        color_upper_bound=(H_H,S_H,V_H),
+        color_space="HSV",
+        method=method,
+    )    
 
 @opencv.get("/download/{image_url}")
 async def download_file(image_url: str):
